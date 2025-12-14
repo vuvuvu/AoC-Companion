@@ -5,8 +5,8 @@ import react from '@vitejs/plugin-react';
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     return {
-      // base set for GitHub Pages under /AoC-Companion/
-      base: '/AoC-Companion/',
+      // Set base for GitHub Pages deployment
+      base: mode === 'production' ? '/AoC-Companion/' : '/',
       server: {
         port: 3000,
         host: '0.0.0.0',
