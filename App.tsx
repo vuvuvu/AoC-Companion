@@ -225,9 +225,21 @@ const App: React.FC = () => {
               </svg>
             </button>
           </form>
-          <div className="text-center mt-2">
+          <div className="text-center mt-2 flex flex-col items-center">
              <p className="text-[10px] text-gray-600">
                AI can make mistakes. Check your logic. Good luck, coder.
+             </p>
+             <p className="text-[9px] text-gray-700 mt-1">
+               made by{' '}
+               <a 
+                 href="https://github.com/vuvuvu/AoC-Companion" 
+                 target="_blank" 
+                 rel="noopener noreferrer"
+                 className="hover:text-aoc-green transition-colors border-b border-dotted border-gray-700 hover:border-aoc-green"
+                 title="for the clever nerds who write code from which this whole house of AI sticks is built on"
+               >
+                 vUvu
+               </a>
              </p>
           </div>
         </div>
