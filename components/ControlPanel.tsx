@@ -6,9 +6,16 @@ interface ControlPanelProps {
   onStateChange: (newState: Partial<AppState>) => void;
   isChatActive: boolean;
   isLoadingContext?: boolean;
+  onRefreshContext: () => void;
 }
 
-const ControlPanel: React.FC<ControlPanelProps> = ({ state, onStateChange, isChatActive, isLoadingContext = false }) => {
+const ControlPanel: React.FC<ControlPanelProps> = ({ 
+  state, 
+  onStateChange, 
+  isChatActive, 
+  isLoadingContext = false,
+  onRefreshContext 
+}) => {
   
   const handleLevelChange = (level: HintLevel) => {
     onStateChange({ hintLevel: level });
@@ -90,10 +97,25 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ state, onStateChange, isCha
 
       {/* Context Input */}
       <div className="flex-1 flex flex-col min-h-[200px] relative">
-        <label className="block text-xs uppercase text-gray-500 mb-2 font-bold tracking-wider flex justify-between">
-          <span>Puzzle Context / Rules</span>
-          {isLoadingContext && <span className="text-aoc-green animate-pulse">FETCHING...</span>}
-        </label>
+        <div className="flex justify-between items-center mb-2">
+          <label className="text-xs uppercase text-gray-500 font-bold tracking-wider">
+            Puzzle Context
+          </label>
+          <button 
+            onClick={onRefreshContext}
+            disabled={isLoadingContext}
+            className="text-[10px] flex items-center gap-1 bg-slate-900 border border-gray-600 px-2 py-1 rounded hover:border-aoc-green hover:text-aoc-green transition-colors disabled:opacity-50"
+            title="Re-fetch from AoC"
+          >
+             {isLoadingContext ? (
+               <span className="animate-spin">↻</span>
+             ) : (
+               <span>↻</span>
+             )}
+             {isLoadingContext ? 'FETCHING...' : 'REFRESH'}
+          </button>
+        </div>
+        
         <div className="relative flex-1 w-full">
            <textarea
             value={state.puzzleContext}
@@ -104,11 +126,6 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ state, onStateChange, isCha
             `}
             disabled={isLoadingContext}
           />
-          {isLoadingContext && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-6 h-6 border-2 border-aoc-green border-t-transparent rounded-full animate-spin"></div>
-            </div>
-          )}
         </div>
         <p className="text-[10px] text-gray-600 mt-1">
           *Autofilled from AoC via Search. Edit if needed.

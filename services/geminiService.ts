@@ -1,4 +1,4 @@
-import { GoogleGenAI, Chat, GenerativeModel } from "@google/genai";
+import { GoogleGenAI, Chat } from "@google/genai";
 import { HintLevel, AppState } from '../types';
 
 let chatSession: Chat | null = null;
@@ -20,9 +20,19 @@ const getSystemInstruction = (state: AppState): string => {
        - Logic/Algorithm: Discuss data structures (arrays, maps, trees) and algorithms (BFS, sliding window, simulation) suitable for the problem.
        - Pseudocode: Provide high-level steps without language-specific implementation details.
        - Debugging Help: If the user provides code, look for logic errors, off-by-one errors, or misunderstanding of the rules.
-    4. Be encouraging and thematic (elf, reindeer, snow, computer terminal themes).
-    5. If the user provides their puzzle input, acknowledge it but do not process it to give the answer. Use it to understand the specific version of their problem if applicable.
-    6. You have access to Google Search. If the user asks about the problem description and you don't have the context, you may use the tool to verify the problem details from the official URL.
+    4. Be encouraging but direct. If they are on the right track, let them know but direct if they are not. Always be constructive.
+    5. VISUALIZATION: When explaining algorithms, data structures (like trees, graphs, grids), or logic flows, YOU MUST use Mermaid.js charts.
+       - Use \`\`\`mermaid code blocks.
+       - Keep charts simple and readable in dark mode.
+       - CRITICAL SYNTAX RULES for Mermaid:
+         * Always enclose node labels in double quotes. Example: A["Node Label (with parens)"]
+         * Do not use special characters (like commas, brackets) inside labels unless quoted.
+         * Ensure distinct lines for each statement. Do not combine multiple edge definitions on one line if complex.
+       - Use flowcharts (graph TD/LR) for logic.
+       - Use classDiagram for data structures if relevant.
+       - Use sequenceDiagram for state changes if relevant.
+    6. If the user provides their puzzle input, acknowledge it but do not process it to give the answer. Use it to understand the specific version of their problem if applicable.
+    7. You have access to Google Search. If the user asks about the problem description and you don't have the context, you may use the tool to verify the problem details from the official URL.
     
     Current Puzzle Context provided by user:
     "${state.puzzleContext}"
@@ -67,6 +77,7 @@ export const updateSystemContext = async (state: AppState) => {
       Current Hint Level: ${state.hintLevel}
       
       Remember: Do NOT solve the problem. Guide the user.
+      Use Mermaid charts for visualizations where helpful. Follow strict syntax rules (quote labels).
     `;
     
     await chatSession.sendMessage({ message: updatePrompt });

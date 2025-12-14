@@ -21,32 +21,32 @@ const App: React.FC = () => {
     puzzleContext: ''
   });
 
+  // Function to fetch context, extracted for reuse
+  const fetchContext = async () => {
+    setIsContextLoading(true);
+    // We let the service handle the missing API key error so the UI shows something useful
+    const text = await fetchPuzzleFromAoC(appState.year, appState.day);
+    setAppState(prev => ({ ...prev, puzzleContext: text }));
+    setIsContextLoading(false);
+  };
+
   // Fetch puzzle context when day or year changes
   useEffect(() => {
     let isMounted = true;
-    const fetchContext = async () => {
-      // Don't fetch if we haven't initialized chat yet (ensures API key presence)
-      // Actually checking environment variable presence in service is enough, but this is cleaner UI flow.
-      if (!process.env.API_KEY) return;
-
-      setIsContextLoading(true);
-      const text = await fetchPuzzleFromAoC(appState.year, appState.day);
-      if (isMounted) {
-        setAppState(prev => ({ ...prev, puzzleContext: text }));
-        setIsContextLoading(false);
-      }
-    };
-
+    
     // Debounce to prevent flashing/rate-limiting if user scrolls fast
     const timer = setTimeout(() => {
-      fetchContext();
+      if (isMounted) {
+        fetchContext();
+      }
     }, 800);
 
     return () => {
       isMounted = false;
       clearTimeout(timer);
     };
-  }, [appState.year, appState.day]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appState.year, appState.day]); // Intentionally not including fetchContext in dependency to avoid loops
 
   // Debounce context updates to the AI
   useEffect(() => {
@@ -56,7 +56,7 @@ const App: React.FC = () => {
       }, 1000);
       return () => clearTimeout(timeoutId);
     }
-  }, [appState.hintLevel, appState.language, appState.year, appState.day, isInitialized]); // Note: We might want to include puzzleContext here if we want AI to know about it immediately, but typically updateSystemContext reads from appState anyway
+  }, [appState.hintLevel, appState.language, appState.year, appState.day, appState.puzzleContext, isInitialized]); 
 
   // Initial Chat Setup
   useEffect(() => {
@@ -141,6 +141,7 @@ const App: React.FC = () => {
         onStateChange={handleStateChange}
         isChatActive={messages.length > 1}
         isLoadingContext={isContextLoading}
+        onRefreshContext={fetchContext}
       />
 
       {/* Main Chat Area */}
