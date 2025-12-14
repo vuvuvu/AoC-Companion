@@ -1,0 +1,5 @@
+{
+  "name": "AoC Companion",
+  "description": "An AI-powered assistant to guide you through Advent of Code challenges without spoiling the solution. Adapts to your skill level and language preference.",
+  "requestFramePermissions": []
+}

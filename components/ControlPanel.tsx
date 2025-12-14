@@ -1,0 +1,121 @@
+import React from 'react';
+import { AppState, HintLevel, LANGUAGES, YEARS, DAYS } from '../types';
+
+interface ControlPanelProps {
+  state: AppState;
+  onStateChange: (newState: Partial<AppState>) => void;
+  isChatActive: boolean;
+  isLoadingContext?: boolean;
+}
+
+const ControlPanel: React.FC<ControlPanelProps> = ({ state, onStateChange, isChatActive, isLoadingContext = false }) => {
+  
+  const handleLevelChange = (level: HintLevel) => {
+    onStateChange({ hintLevel: level });
+  };
+
+  return (
+    <div className="bg-slate-800/50 border-r border-gray-700/50 w-full md:w-80 flex-shrink-0 flex flex-col h-full overflow-y-auto p-4 custom-scrollbar">
+      <h2 className="text-aoc-yellow text-lg font-bold mb-6 flex items-center">
+        <span className="mr-2">⚙️</span> CONFIG
+      </h2>
+
+      {/* Year Selection */}
+      <div className="mb-6">
+        <label className="block text-xs uppercase text-gray-500 mb-2 font-bold tracking-wider">AoC Year</label>
+        <select 
+          value={state.year}
+          onChange={(e) => onStateChange({ year: e.target.value })}
+          className="w-full bg-slate-900 border border-gray-600 text-aoc-gray rounded p-2 text-sm focus:border-aoc-green focus:outline-none transition-colors"
+        >
+          {YEARS.map(year => (
+            <option key={year} value={year}>{year}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Day Selection */}
+      <div className="mb-6">
+        <label className="block text-xs uppercase text-gray-500 mb-2 font-bold tracking-wider">Puzzle Day</label>
+        <select 
+          value={state.day}
+          onChange={(e) => onStateChange({ day: e.target.value })}
+          className="w-full bg-slate-900 border border-gray-600 text-aoc-gray rounded p-2 text-sm focus:border-aoc-green focus:outline-none transition-colors"
+        >
+          {DAYS.map(day => (
+            <option key={day} value={day}>Day {day}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Language Selection */}
+      <div className="mb-6">
+        <label className="block text-xs uppercase text-gray-500 mb-2 font-bold tracking-wider">Tech Stack</label>
+        <select 
+          value={state.language}
+          onChange={(e) => onStateChange({ language: e.target.value })}
+          className="w-full bg-slate-900 border border-gray-600 text-aoc-gray rounded p-2 text-sm focus:border-aoc-green focus:outline-none transition-colors"
+        >
+          {LANGUAGES.map(lang => (
+            <option key={lang} value={lang}>{lang}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Hint Level Slider/Buttons */}
+      <div className="mb-8">
+        <label className="block text-xs uppercase text-gray-500 mb-2 font-bold tracking-wider">Assistance Level</label>
+        <div className="flex flex-col gap-2">
+          {Object.values(HintLevel).map((level) => (
+            <button
+              key={level}
+              onClick={() => handleLevelChange(level)}
+              className={`text-left px-3 py-2 rounded text-xs font-bold transition-all duration-200 border ${
+                state.hintLevel === level
+                  ? 'bg-aoc-green/20 border-aoc-green text-aoc-green shadow-[0_0_10px_rgba(0,204,0,0.2)]'
+                  : 'bg-slate-900 border-gray-700 text-gray-400 hover:border-gray-500'
+              }`}
+            >
+              {level}
+            </button>
+          ))}
+        </div>
+        <p className="mt-2 text-[10px] text-gray-500 italic">
+          {state.hintLevel === HintLevel.VAGUE && "Minimal guidance. Just a gentle push."}
+          {state.hintLevel === HintLevel.LOGIC && "Conceptual explanations of algorithms."}
+          {state.hintLevel === HintLevel.PSEUDOCODE && "Step-by-step logic, no real code."}
+          {state.hintLevel === HintLevel.DEBUG && "Paste your code, I'll find bugs."}
+        </p>
+      </div>
+
+      {/* Context Input */}
+      <div className="flex-1 flex flex-col min-h-[200px] relative">
+        <label className="block text-xs uppercase text-gray-500 mb-2 font-bold tracking-wider flex justify-between">
+          <span>Puzzle Context / Rules</span>
+          {isLoadingContext && <span className="text-aoc-green animate-pulse">FETCHING...</span>}
+        </label>
+        <div className="relative flex-1 w-full">
+           <textarea
+            value={state.puzzleContext}
+            onChange={(e) => onStateChange({ puzzleContext: e.target.value })}
+            placeholder="Paste the specific problem part or rules here..."
+            className={`w-full h-full bg-slate-900 border text-aoc-gray rounded p-2 text-xs font-mono resize-none transition-colors
+              ${isLoadingContext ? 'border-aoc-green/50 opacity-50 cursor-wait' : 'border-gray-600 focus:border-aoc-yellow focus:outline-none'}
+            `}
+            disabled={isLoadingContext}
+          />
+          {isLoadingContext && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="w-6 h-6 border-2 border-aoc-green border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          )}
+        </div>
+        <p className="text-[10px] text-gray-600 mt-1">
+          *Autofilled from AoC via Search. Edit if needed.
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default ControlPanel;
