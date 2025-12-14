@@ -19,6 +19,7 @@ const MermaidChart = ({ chart }: { chart: string }) => {
   const [svg, setSvg] = useState('');
   const [error, setError] = useState(false);
   const [isProcessing, setIsProcessing] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const idRef = useRef(`mermaid-${Math.random().toString(36).substr(2, 9)}`);
 
   useEffect(() => {
@@ -59,7 +60,7 @@ const MermaidChart = ({ chart }: { chart: string }) => {
 
   if (error) {
     return (
-       <div className="my-4 flex flex-col gap-2">
+       <div className="my-2 flex flex-col gap-2">
         <div className="bg-red-900/20 border border-red-500/30 p-2 rounded text-xs text-red-400 font-mono flex justify-between items-center">
           <span>Mermaid Render Failed (Displaying Source)</span>
           <button 
@@ -76,18 +77,77 @@ const MermaidChart = ({ chart }: { chart: string }) => {
     );
   }
 
+  // Loading State
+  if (isProcessing && !svg) {
+    return (
+       <div className="my-2 p-3 bg-slate-900/30 border border-gray-700/30 rounded flex items-center gap-3 animate-pulse">
+         <div className="w-4 h-4 bg-gray-700 rounded-full"></div>
+         <span className="text-xs text-gray-500 font-mono">Generating diagram...</span>
+       </div>
+    );
+  }
+
+  // Compact Button View
   return (
-    <div className="relative my-4">
-      {isProcessing && !svg && (
-         <div className="absolute inset-0 flex items-center justify-center bg-slate-900/50 rounded border border-gray-700/50 h-24">
-           <span className="text-xs text-gray-500 animate-pulse">Generating Diagram...</span>
-         </div>
-      )}
+    <>
       <div 
-        className={`bg-slate-900/50 p-4 rounded overflow-x-auto flex justify-center border border-gray-700/50 transition-opacity duration-300 ${isProcessing && !svg ? 'opacity-0' : 'opacity-100'}`}
-        dangerouslySetInnerHTML={{ __html: svg }} 
-      />
-    </div>
+        onClick={() => setIsModalOpen(true)}
+        className="my-3 group cursor-pointer select-none inline-block w-full md:w-auto"
+      >
+        <div className="bg-slate-900/80 border border-gray-700/50 hover:border-aoc-green/50 hover:bg-slate-800 p-3 rounded-md flex items-center gap-4 transition-all shadow-sm max-w-sm">
+           <div className="w-10 h-10 rounded bg-slate-800 border border-gray-700 flex items-center justify-center text-xl shadow-inner flex-shrink-0">
+             📊
+           </div>
+           <div className="flex flex-col flex-grow">
+             <span className="text-xs font-bold text-aoc-blue group-hover:text-aoc-green transition-colors font-mono">
+               Diagram Ready
+             </span>
+             <span className="text-[10px] text-gray-500">
+               Click to view logic flow
+             </span>
+           </div>
+           <div className="opacity-50 group-hover:opacity-100 transition-opacity">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-aoc-green">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+              </svg>
+           </div>
+        </div>
+      </div>
+
+      {/* Full Screen Modal */}
+      {isModalOpen && (
+        <div 
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 md:p-8 animate-in fade-in duration-200"
+            onClick={() => setIsModalOpen(false)}
+        >
+          <div 
+            className="bg-slate-900 border border-gray-600 rounded-lg shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col relative"
+            onClick={e => e.stopPropagation()}
+          >
+             {/* Modal Header */}
+             <div className="flex justify-between items-center p-3 border-b border-gray-700 bg-slate-900/90 rounded-t-lg">
+                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider font-mono">Mermaid Visualization</span>
+                <button 
+                  onClick={() => setIsModalOpen(false)}
+                  className="text-gray-500 hover:text-white transition-colors bg-white/5 hover:bg-white/10 p-1 rounded"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+             </div>
+             
+             {/* Modal Content - Scrollable */}
+             <div className="flex-1 overflow-auto p-6 bg-[#0d0d15] flex justify-center items-start custom-scrollbar">
+                <div 
+                  dangerouslySetInnerHTML={{ __html: svg }} 
+                  className="min-w-min mx-auto"
+                />
+             </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 
