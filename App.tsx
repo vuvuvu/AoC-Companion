@@ -132,6 +132,39 @@ const App: React.FC = () => {
     setAppState(prev => ({ ...prev, ...updates }));
   };
 
+  const handleResetChat = async () => {
+    setMessages([]);
+    setIsLoading(true);
+    await initializeChat(appState);
+    setMessages([{
+        id: Date.now().toString(),
+        text: `Chat session reset. I'm ready to help you with ${appState.year} Day ${appState.day}.`,
+        sender: Sender.AI,
+        timestamp: Date.now()
+    }]);
+    setIsLoading(false);
+  };
+
+  const handleUpdateApiKey = async () => {
+    if ((window as any).aistudio) {
+        try {
+            await (window as any).aistudio.openSelectKey();
+            // Re-initialize to pick up the new key injected into env
+            await initializeChat(appState);
+            setMessages(prev => [...prev, {
+                id: Date.now().toString(),
+                text: "API Key updated successfully.",
+                sender: Sender.SYSTEM,
+                timestamp: Date.now()
+            }]);
+        } catch (e) {
+            console.error("Failed to update API key", e);
+        }
+    } else {
+        alert("API Key selection is not available in this environment.");
+    }
+  };
+
   return (
     <div className="flex flex-col md:flex-row h-screen w-screen bg-aoc-dark text-aoc-gray overflow-hidden">
       
@@ -142,6 +175,8 @@ const App: React.FC = () => {
         isChatActive={messages.length > 1}
         isLoadingContext={isContextLoading}
         onRefreshContext={fetchContext}
+        onResetChat={handleResetChat}
+        onUpdateApiKey={handleUpdateApiKey}
       />
 
       {/* Main Chat Area */}
